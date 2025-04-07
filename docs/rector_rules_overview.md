@@ -1,4 +1,4 @@
-# 77 Rules Overview
+# 79 Rules Overview
 
 ## AbortIfRector
 
@@ -329,6 +329,21 @@ Replace `(new \Illuminate\Testing\TestResponse)->assertStatus(200)` with `(new \
 +        $this->get('/')->assertServiceUnavailable();
      }
  }
+```
+
+<br>
+
+## AssertWithClassStringToTypeHintedClosureRector
+
+Changes assert calls to use a type hinted closure.
+
+- class: [`RectorLaravel\Rector\StaticCall\AssertWithClassStringToTypeHintedClosureRector`](../src/Rector/StaticCall/AssertWithClassStringToTypeHintedClosureRector.php)
+
+```diff
+-Bus::assertDispatched(OrderCreated::class, function ($job) {
++Bus::assertDispatched(function (OrderCreated $job) {
+     return true;
+ });
 ```
 
 <br>
@@ -711,7 +726,7 @@ Change `app()` func calls to facade calls
      public function run()
      {
 -        return app('translator')->trans('value');
-+        return \Illuminate\Support\Facades\App::get('translator')->trans('value');
++        return \Illuminate\Support\Facades\App::make('translator')->trans('value');
      }
  }
 ```
@@ -1325,6 +1340,26 @@ Use PHP callable syntax instead of string syntax for controller route declaratio
 
 <br>
 
+## ScopeNamedClassMethodToScopeAttributedClassMethodRector
+
+Changes model scope methods to use the scope attribute
+
+- class: [`RectorLaravel\Rector\ClassMethod\ScopeNamedClassMethodToScopeAttributedClassMethodRector`](../src/Rector/ClassMethod/ScopeNamedClassMethodToScopeAttributedClassMethodRector.php)
+
+```diff
+ class User extends Model
+ {
+-    public function scopeActive($query)
++    #[\Illuminate\Database\Eloquent\Attributes\Scope]
++    public function active($query)
+     {
+         return $query->where('active', 1);
+     }
+ }
+```
+
+<br>
+
 ## ServerVariableToRequestFacadeRector
 
 Change server variable to Request facade's server method
@@ -1459,12 +1494,8 @@ Use the base collection methods instead of their aliases.
  $collection = new Collection([0, 1, null, -1]);
 -$collection->average();
 -$collection->some(fn (?int $number): bool => is_null($number));
--$collection->unlessEmpty(fn(Collection $collection) => $collection->push('Foo'));
--$collection->unlessNotEmpty(fn(Collection $collection) => $collection->push('Foo'));
 +$collection->avg();
 +$collection->contains(fn (?int $number): bool => is_null($number));
-+$collection->whenNotEmpty(fn(Collection $collection) => $collection->push('Foo'));
-+$collection->whenEmpty(fn(Collection $collection) => $collection->push('Foo'));
 ```
 
 <br>
